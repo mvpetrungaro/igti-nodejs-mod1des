@@ -1,23 +1,21 @@
 import express from "express";
+import pedidosRouter from "./routers/pedidos.router.js"
 
 const app = express();
 app.use(express.json());
 
-app.get("/", async (req, res, next) => {
-    try {
-        throw new Error("deu ruim pa carai");
-    } catch (err) {
-        next(err);
-    }
-
-    res.send("Hello!");
-});
+app.use("/pedidos", pedidosRouter);
 
 app.use((err, req, res, next) => {
     console.log(err);
-    res.status(500).send({ error: err.message });
+
+    if (!res.statuCode) {
+        res.status(500);
+    }
+
+    res.send({ error: err.message });
 })
 
-app.listen(8080, () => {
+app.listen(3000, () => {
     console.log("API started");
 });
