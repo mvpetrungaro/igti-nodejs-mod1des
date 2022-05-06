@@ -10,6 +10,28 @@ export default class PedidosRepository {
         return data.pedidos;
     }
 
+    async getPedidosEntreguesByClienteOrProduto(cliente, produto) {
+        const data = JSON.parse(await fs.readFile(file));
+
+        const filterPedidos = p => {
+            let filter = p.entregue;
+
+            if (cliente) {
+                filter = filter && !!p.cliente && p.cliente.toLowerCase() == cliente.toLowerCase()
+            }
+
+            if (produto) {
+                filter = filter && !!p.produto && p.produto.toLowerCase() == produto.toLowerCase()
+            }
+
+            return filter;
+        };
+
+        const pedidos = data.pedidos.filter(filterPedidos);
+
+        return pedidos;
+    }
+
     async getPedido(id) {
         const data = JSON.parse(await fs.readFile(file));
 

@@ -5,7 +5,6 @@ const serv = new PedidosService();
 export default class PedidosController {
 
     async getPedidos(req, res, next) {
-        
         try {
             const pedidos = await serv.getPedidos();
             res.send(pedidos);
@@ -15,7 +14,6 @@ export default class PedidosController {
     }
 
     async getPedido(req, res, next) {
-
         try {
             let id = req.params.id;
 
@@ -39,7 +37,6 @@ export default class PedidosController {
     }
 
     async createPedido(req, res, next) {
-
         try {
             let pedido = req.body;
 
@@ -66,7 +63,6 @@ export default class PedidosController {
     }
 
     async updatePedido(req, res, next) {
-
         try {
             let id = req.params.id;
             let pedido = req.body;
@@ -103,7 +99,6 @@ export default class PedidosController {
     }
 
     async updateStatusPedido(req, res, next) {
-
         try {
             let id = req.params.id;
             let entregue = req.body.entregue;
@@ -132,7 +127,6 @@ export default class PedidosController {
     }
 
     async deletePedido(req, res, next) {
-
         try {
             let id = req.params.id;
 
@@ -153,6 +147,48 @@ export default class PedidosController {
             }
 
             res.end();
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    async valorTotal(req, res, next) {
+        try {
+            const cliente = req.query.cliente;
+            const produto = req.query.produto;
+
+            try {
+                if (cliente) {
+                    validateText(cliente);
+                }
+
+                if (produto) {
+                    validateText(produto);
+                }
+            } catch(err) {
+                res.status(400);
+                throw err;
+            }
+
+            try {
+                const valorTotal = await serv.valorTotal(cliente, produto);
+                res.send(valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            } catch(err) {
+                res.status(404);
+                throw err;
+            }
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    async produtosMaisVendidos(req, res, next) {
+        try {
+            let produtosMaisVendidos = await serv.produtosMaisVendidos();
+
+            produtosMaisVendidos = produtosMaisVendidos.map(p => p.produto + " - " + p.vendas);
+
+            res.send(produtosMaisVendidos);
         } catch(err) {
             next(err);
         }

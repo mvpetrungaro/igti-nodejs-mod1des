@@ -30,4 +30,39 @@ export default class PedidosService {
     async deletePedido(id) {
         await repo.deletePedido(id);
     }
+
+    async valorTotal(cliente, produto) {
+        const pedidos = await repo.getPedidosEntreguesByClienteOrProduto(cliente, produto);
+
+        if (!pedidos.length) {
+            throw new Error("Nenhum pedido encontrado");
+        }
+        
+        const valorTotal = pedidos.map(p => p.valor).reduce((a, b) => a + b);
+
+        return valorTotal;
+    }
+
+    async produtosMaisVendidos() {
+        const pedidos = await repo.getPedidosEntreguesByClienteOrProduto();
+
+        if (!pedidos.length) {
+            throw new Error("Nenhum pedido encontrado");
+        }
+
+        const produtosMaisVendidos = pedidos.map(p => ({ produto: p.produto, vendas: 1 })).reduce((acc, p) => {
+            if (!acc.some(a => a.produto == p.produto)) {
+                acc.push(p);
+                return acc;
+            }
+
+            let idx = acc.findIndex(a => a.produto == p.produto);
+
+            acc[idx].vendas++;
+
+            return acc;
+        }, []).sort((a, b) => b.vendas - a.vendas);
+
+        return produtosMaisVendidos;
+    }
 }
